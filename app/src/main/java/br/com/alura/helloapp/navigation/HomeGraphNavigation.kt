@@ -35,6 +35,9 @@ fun NavGraphBuilder.homeGraph(
                 onClickDesloga = {
 
 
+                },
+                onClickSearchIcon = {
+                    viewModel.exibeSearchBar()
                 })
         }
     }

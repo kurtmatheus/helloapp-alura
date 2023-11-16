@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import br.com.alura.helloapp.FormularioContato
 import br.com.alura.helloapp.R
+import br.com.alura.helloapp.extensions.mostraMensagem
 import br.com.alura.helloapp.ui.form.FormularioContatoTela
 import br.com.alura.helloapp.ui.form.FormularioContatoViewModel
 import br.com.alura.helloapp.util.ID_CONTATO
@@ -23,7 +24,7 @@ fun NavGraphBuilder.formularioContatoGraph(
     ) { navBackStackEntry ->
         navBackStackEntry.arguments?.getLong(
             ID_CONTATO
-        )?.let { idContato ->
+        )?.let {
 
             val viewModel = hiltViewModel<FormularioContatoViewModel>()
             val state by viewModel.uiState.collectAsState()
@@ -38,7 +39,9 @@ fun NavGraphBuilder.formularioContatoGraph(
             FormularioContatoTela(
                 state = state,
                 onClickSalvar = {
+                    viewModel.salvarContato()
                     navController.popBackStack()
+                    context.mostraMensagem("Contato inserido com sucesso.")
                 },
                 onCarregarImagem = {
                     viewModel.carregaImagem(it)

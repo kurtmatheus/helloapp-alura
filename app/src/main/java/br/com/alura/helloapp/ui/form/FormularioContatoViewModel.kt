@@ -2,17 +2,27 @@ package br.com.alura.helloapp.ui.form
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import br.com.alura.helloapp.data.Contato
+import br.com.alura.helloapp.database.ContatoDao
 import br.com.alura.helloapp.extensions.converteParaDate
 import br.com.alura.helloapp.extensions.converteParaString
 import br.com.alura.helloapp.util.ID_CONTATO
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class FormularioContatoViewModel(
-    savedStateHandle: SavedStateHandle
+@HiltViewModel
+class FormularioContatoViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val contatoDao: ContatoDao
 ) : ViewModel() {
 
     private val idContato = savedStateHandle.get<Long>(ID_CONTATO)
@@ -23,6 +33,10 @@ class FormularioContatoViewModel(
 
 
     init {
+
+        viewModelScope.launch {
+            carregaContato()
+        }
 
         _uiState.update { state ->
             state.copy(onNomeMudou = {
@@ -69,5 +83,41 @@ class FormularioContatoViewModel(
         _uiState.value = _uiState.value.copy(
             fotoPerfil = url, mostrarCaixaDialogoImagem = false
         )
+    }
+
+    fun salvarContato() {
+        CoroutineScope(IO).launch {
+            with(_uiState.value) {
+                idContato?.let {
+                    val contato = Contato(
+                        id = it,
+                        nome = nome,
+                        sobrenome = sobrenome,
+                        aniversario = aniversario,
+                        telefone = telefone
+                    )
+                    contatoDao.insere(contato)
+                }
+            }
+        }
+    }
+
+    private suspend fun carregaContato() {
+        idContato?.let { idContato ->
+            val contato = contatoDao.buscaContatoPorId(id = idContato)
+            contato.collect { contatoFlow ->
+                contatoFlow?.apply {
+                    _uiState.update {
+                        it.copy(
+                            nome = nome,
+                            sobrenome = sobrenome,
+                            telefone = telefone,
+                            aniversario = aniversario,
+                            fotoPerfil = fotoPerfil
+                        )
+                    }
+                }
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import br.com.alura.helloapp.R
 import br.com.alura.helloapp.data.Contato
 import br.com.alura.helloapp.sampleData.contatosExemplo
 import br.com.alura.helloapp.ui.components.AsyncImagePerfil
+import br.com.alura.helloapp.ui.components.SearchBar
 import br.com.alura.helloapp.ui.theme.HelloAppTheme
 
 @Composable
@@ -31,9 +33,14 @@ fun ListaContatosTela(
     onClickDesloga: () -> Unit = {},
     onClickAbreDetalhes: (Long) -> Unit = {},
     onClickAbreCadastro: () -> Unit = {},
+    onClickSearchIcon: () -> Unit = {}
 ) {
     Scaffold(
-        topBar = { AppBarListaContatos(onClickDesloga = onClickDesloga) },
+        topBar = { AppBarListaContatos(
+            onClickDesloga = onClickDesloga,
+            onClickSearchIcon = onClickSearchIcon,
+            state = state
+        ) },
         floatingActionButton = {
             FloatingActionButton(
                 backgroundColor = MaterialTheme.colors.primary,
@@ -57,21 +64,40 @@ fun ListaContatosTela(
 }
 
 @Composable
-fun AppBarListaContatos(onClickDesloga: () -> Unit) {
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.nome_do_app)) },
-        actions = {
-            IconButton(
-                onClick = onClickDesloga
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ExitToApp,
-                    tint = Color.White,
-                    contentDescription = stringResource(R.string.deslogar)
-                )
+fun AppBarListaContatos(
+    state: ListaContatosUiState,
+    onClickDesloga: () -> Unit,
+    onClickSearchIcon: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        TopAppBar(
+            title = { Text(text = stringResource(id = R.string.nome_do_app)) },
+            actions = {
+                IconButton(
+                    onClick = onClickSearchIcon
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        tint = Color.White,
+                        contentDescription = stringResource(R.string.pesquisar)
+                    )
+                }
+
+                IconButton(
+                    onClick = onClickDesloga
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ExitToApp,
+                        tint = Color.White,
+                        contentDescription = stringResource(R.string.deslogar)
+                    )
+                }
             }
-        }
-    )
+        )
+
+        if (state.exibeSearchBar) SearchBar(listaContatosUiState = state)
+
+    }
 }
 
 @Composable
@@ -116,7 +142,7 @@ fun ContatoItem(
 fun ListaContatosPreview() {
     HelloAppTheme {
         ListaContatosTela(
-            state = ListaContatosUiState(contatosExemplo)
+            state = ListaContatosUiState(contatosExemplo) {}
         )
     }
 }
