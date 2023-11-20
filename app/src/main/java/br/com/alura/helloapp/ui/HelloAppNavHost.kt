@@ -8,7 +8,11 @@ import androidx.navigation.compose.NavHost
 import br.com.alura.helloapp.DestinosHelloApp
 import br.com.alura.helloapp.DetalhesContato
 import br.com.alura.helloapp.FormularioContato
-import br.com.alura.helloapp.navigation.*
+import br.com.alura.helloapp.navigation.detalhesContatoGraph
+import br.com.alura.helloapp.navigation.formularioContatoGraph
+import br.com.alura.helloapp.navigation.homeGraph
+import br.com.alura.helloapp.navigation.loginGraph
+import br.com.alura.helloapp.navigation.splashGraph
 
 @Composable
 fun HelloAppNavHost(
@@ -17,9 +21,11 @@ fun HelloAppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = DestinosHelloApp.HomeGraph.rota,
+        startDestination = DestinosHelloApp.SplashScreen.rota,
         modifier = modifier
     ) {
+        splashGraph(navController)
+        loginGraph(navController)
         homeGraph(navController)
         formularioContatoGraph(navController)
         detalhesContatoGraph(navController)

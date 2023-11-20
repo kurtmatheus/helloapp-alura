@@ -3,6 +3,7 @@ package br.com.alura.helloapp.ui.form
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.alura.helloapp.R
 import br.com.alura.helloapp.data.Contato
 import br.com.alura.helloapp.database.ContatoDao
 import br.com.alura.helloapp.extensions.converteParaDate
@@ -113,7 +114,8 @@ class FormularioContatoViewModel @Inject constructor(
                             sobrenome = sobrenome,
                             telefone = telefone,
                             aniversario = aniversario,
-                            fotoPerfil = fotoPerfil
+                            fotoPerfil = fotoPerfil,
+                            tituloAppbar = R.string.titulo_editar_contato
                         )
                     }
                 }

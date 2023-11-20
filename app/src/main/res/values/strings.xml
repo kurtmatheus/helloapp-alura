@@ -30,4 +30,5 @@
     <string name="usuario_ou_senha_incorreto">Usuário ou senha incorreto</string>
     <string name="logo_do_app">Logo do aplicativo</string>
     <string name="placeholder_searchbar">Pesquise o nome...</string>
+    <string name="atencao_deslogar">Deseja realmente deslogar?</string>
 </resources>

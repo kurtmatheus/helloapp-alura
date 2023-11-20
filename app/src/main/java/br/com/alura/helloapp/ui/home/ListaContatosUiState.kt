@@ -7,6 +7,6 @@ data class ListaContatosUiState(
     val logado: Boolean = true,
     val exibeSearchBar: Boolean = false,
     val textoBusca: String = "",
-    val onTextoBuscaChange: (String) -> Unit = {}
-) {
-}
+    val onTextoBuscaChange: (String) -> Unit = {},
+    val exibeDialog: Boolean = false
+)

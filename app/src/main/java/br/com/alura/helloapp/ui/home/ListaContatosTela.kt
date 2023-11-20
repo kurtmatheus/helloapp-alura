@@ -103,7 +103,7 @@ fun AppBarListaContatos(
 @Composable
 fun ContatoItem(
     contato: Contato,
-    onClick: (Long) -> Unit
+    onClick: (Long) -> Unit = {}
 ) {
     Card(
         Modifier.clickable { onClick(contato.id) },
@@ -142,7 +142,7 @@ fun ContatoItem(
 fun ListaContatosPreview() {
     HelloAppTheme {
         ListaContatosTela(
-            state = ListaContatosUiState(contatosExemplo) {}
+            state = ListaContatosUiState(contatosExemplo)
         )
     }
 }
