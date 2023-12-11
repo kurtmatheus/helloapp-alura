@@ -6,12 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.alura.helloapp.preferences.PreferencesKey.LOGADO
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
@@ -29,19 +30,17 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun definiDestinoInicial() {
-        dataStore.data.collect { preferences ->
-            val logado = preferences[LOGADO]
-            val appState = if (logado == true) {
+        delay(Random.nextLong(300, 1000))
+        dataStore.data.collect {
+            val appState = if (it[LOGADO] == true) {
                 AppState.Logado
             } else {
                 AppState.Deslogado
             }
 
-            _uiState.update {
-                it.copy(
-                    appState = appState
-                )
-            }
+            _uiState.value = _uiState.value.copy(
+                appState = appState
+            )
         }
     }
 }

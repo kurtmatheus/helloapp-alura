@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import br.com.alura.helloapp.database.ContatoDao
 import br.com.alura.helloapp.database.HelloAppDatabase
+import br.com.alura.helloapp.database.migrations.MIGRATION_5_6
+import br.com.alura.helloapp.database.UsuarioDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,22 +13,32 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+private const val DATABASE_NAME = "helloApp.db"
+
 @Module
 @InstallIn(SingletonComponent::class)
 class DatabaseModule {
 
     @Singleton
     @Provides
-    fun providesDatabase(@ApplicationContext context: Context): HelloAppDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): HelloAppDatabase {
         return Room.databaseBuilder(
             context,
             HelloAppDatabase::class.java,
-            "helloApp.db"
-        ).build()
+            DATABASE_NAME
+        ).addMigrations(
+            MIGRATION_5_6
+        )
+            .build()
     }
 
     @Provides
-    fun providesContatoDao(db: HelloAppDatabase) : ContatoDao {
+    fun provideContatoDao(db: HelloAppDatabase): ContatoDao {
         return db.contatoDao()
+    }
+
+    @Provides
+    fun provideUsuarioDao(db: HelloAppDatabase): UsuarioDao {
+        return db.usuarioDao()
     }
 }

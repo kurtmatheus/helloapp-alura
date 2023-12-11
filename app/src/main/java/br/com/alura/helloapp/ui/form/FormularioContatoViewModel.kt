@@ -1,5 +1,7 @@
 package br.com.alura.helloapp.ui.form
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,22 +10,22 @@ import br.com.alura.helloapp.data.Contato
 import br.com.alura.helloapp.database.ContatoDao
 import br.com.alura.helloapp.extensions.converteParaDate
 import br.com.alura.helloapp.extensions.converteParaString
+import br.com.alura.helloapp.preferences.PreferencesKey
 import br.com.alura.helloapp.util.ID_CONTATO
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class FormularioContatoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val contatoDao: ContatoDao
+    private val contatoDao: ContatoDao,
+    private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
 
     private val idContato = savedStateHandle.get<Long>(ID_CONTATO)
@@ -32,9 +34,7 @@ class FormularioContatoViewModel @Inject constructor(
     val uiState: StateFlow<FormularioContatoUiState>
         get() = _uiState.asStateFlow()
 
-
     init {
-
         viewModelScope.launch {
             carregaContato()
         }
@@ -72,6 +72,27 @@ class FormularioContatoViewModel @Inject constructor(
         }
     }
 
+    private suspend fun carregaContato() {
+        idContato?.let {
+            val contato = contatoDao.buscaPorId(idContato)
+            contato.collect {
+                it?.let {
+                    with(it) {
+                        _uiState.value = _uiState.value.copy(
+                            id = id,
+                            nome = nome,
+                            sobrenome = sobrenome,
+                            aniversario = aniversario,
+                            telefone = telefone,
+                            fotoPerfil = fotoPerfil,
+                            tituloAppbar = R.string.titulo_editar_contato,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun defineTextoAniversario(textoAniversario: String) {
         val textoAniversairo = _uiState.value.aniversario?.converteParaString() ?: textoAniversario
 
@@ -86,39 +107,21 @@ class FormularioContatoViewModel @Inject constructor(
         )
     }
 
-    fun salvarContato() {
-        CoroutineScope(IO).launch {
+    suspend fun salva() {
+        val usuarioAtual = dataStore.data.first()[PreferencesKey.USUARIO_ATUAL]
+        usuarioAtual?.let {
             with(_uiState.value) {
-                idContato?.let {
-                    val contato = Contato(
-                        id = it,
+                contatoDao.insere(
+                    Contato(
+                        id = id,
                         nome = nome,
                         sobrenome = sobrenome,
+                        telefone = telefone,
+                        fotoPerfil = fotoPerfil,
                         aniversario = aniversario,
-                        telefone = telefone
+                        idUsuario = it
                     )
-                    contatoDao.insere(contato)
-                }
-            }
-        }
-    }
-
-    private suspend fun carregaContato() {
-        idContato?.let { idContato ->
-            val contato = contatoDao.buscaContatoPorId(id = idContato)
-            contato.collect { contatoFlow ->
-                contatoFlow?.apply {
-                    _uiState.update {
-                        it.copy(
-                            nome = nome,
-                            sobrenome = sobrenome,
-                            telefone = telefone,
-                            aniversario = aniversario,
-                            fotoPerfil = fotoPerfil,
-                            tituloAppbar = R.string.titulo_editar_contato
-                        )
-                    }
-                }
+                )
             }
         }
     }
